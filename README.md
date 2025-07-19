@@ -1,128 +1,130 @@
-# Credit-Risk-Classification
+# Credit Risk Classification
 
 ## Overview
 
-This analysis focuses on building a machine learning model to assess the creditworthiness of borrowers. Specifically, we developed a **binary logistic-regression model**  to predict loan status (`0` for healthy loans and `1` for high-risk loans) for 10,000 loan applications. 
+This project focuses on building a binary classification model to assess the creditworthiness of borrowers. Using logistic regression, we predicted loan status (`0` = healthy, `1` = high-risk) across **20,000** loan applications.
 
-### Data Description
+---
 
-| File                      | Rows  | Columns | Notes                                         |
-|:-------------------------:|:-----:|:-------:|:---------------------------------------------:|
-| `Resources/lending_data.csv` | 10,000 | 8       | 7 features + `loan_status` label              |
+## Dataset Description
 
-### Feature List
+| File Path                      | Rows  | Columns | Notes                                      |
+|:------------------------------|:-----:|:-------:|:-------------------------------------------|
+| `Resources/lending_data.csv`  | 20,000| 8       | 7 feature columns + 1 target label (`loan_status`) |
 
-   | Column                   | Type    | Description                                                 |
-   |:-------------------------|:-------:|:------------------------------------------------------------|
-   | `loan_size`              | float   | Principal amount                                           |
-   | `interest_rate`          | float   | Annual interest rate (%)                                   |
-   | `borrower_income`        | float   | Annual income in USD                                       |
-   | `debt_to_income_ratio`   | float   | Total debt ÷ income                                        |
-   | `open_accounts`          | int     | Number of currently open credit lines                      |
-   | `derogatory_marks`       | int     | Count of negative credit events                            |
-   | `total_debt`             | float   | Sum of all outstanding debt                                |
-   | `loan_status`            | 0 / 1   | **Label**: 0=healthy, 1=high-risk                           |
+### Features
 
+| Column               | Type   | Description                              |
+|----------------------|--------|------------------------------------------|
+| `loan_size`          | float  | Principal loan amount                    |
+| `interest_rate`      | float  | Annual interest rate (%)                |
+| `borrower_income`    | float  | Borrower's yearly income (USD)          |
+| `debt_to_income_ratio`| float | Total debt divided by income            |
+| `open_accounts`      | int    | Number of open credit lines             |
+| `derogatory_marks`   | int    | Negative credit events                  |
+| `total_debt`         | float  | Total current outstanding debt          |
+| `loan_status`        | 0 / 1  | Target label: 0 = healthy, 1 = high-risk|
 
-## Methodology:  
-1. **Separating Features and Labels:**  
-   - Features (X): Variables that the model uses to make predictions (e.g., loan size, interest rate, etc.).  
-   - Labels (y): The target variable we are trying to predict (`loan_status`).
+---
 
-   ```python
-   # Separate the data into labels and features
+## Methodology
 
-   # Separate the X variable, the features
-   X = df.drop(columns=["loan_status"])
+### 1. Separating Features and Labels
 
-    # Separate the y variable, the labels
-   y = df["loan_status"]
-   ```
+```python
+X = df.drop(columns=["loan_status"])
+y = df["loan_status"]
+```
 
-2. **Splitting Data into Training and Testing Sets:**  
-   We divided the dataset into training data (used to train the model) and testing data (used to evaluate the model) using the `train_test_split` module. This process created four subsets: `X_train`, `X_test`, `y_train`, and `y_test`.
-   ```python
-      # Import the train_test_learn module
-      from sklearn.model_selection import train_test_split
+### 2. Splitting into Training & Test Sets
 
-      # Split the data using train_test_split
-      # Assign a random_state of 1 to the function
-      X_train, X_test, y_train, y_test = train_test_split(
-         X, y, test_size=0.25, random_state=1 #25% will be testing, 75% for training
-      )
-      ```
+```python
+from sklearn.model_selection import train_test_split
 
-3. **Training the Logistic Regression Model:**  
-   We used the `LogisticRegression` module to create and train the model. The training process involved fitting the `X_train` and `y_train` data to allow the model to learn patterns from the features.
-   
-   ```python
-   # Import the LogisticRegression module from SKLearn
-   from sklearn.linear_model import LogisticRegression
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=1
+)
+```
 
-   # Instantiate the Logistic Regression model
-   # Assign a random_state parameter of 1 to the model
-   model = LogisticRegression(max_iter=200, random_state=1)
+### 3. Training the Logistic Regression Model
 
-   # Fit the model using training data
-   model.fit(X_train, y_train) #Put the training data into the model
-   ```
+```python
+from sklearn.linear_model import LogisticRegression
 
-4. **Making Predictions and Evaluating the Model:**  
-   After training, we used the model to predict the loan status of the testing feature data (`X_test`).  
+model = LogisticRegression(max_iter=200, random_state=1)
+model.fit(X_train, y_train)
+```
 
-   We evaluated its performance using a confusion matrix and a classification report. The confusion matrix provided a breakdown of correct and incorrect predictions, while the classification report summarized precision, recall, and accuracy metrics.
+### 4. Making Predictions and Evaluating Model Performance
 
-   ```python
-   # Make a prediction using the testing data
-   y_pred = model.predict(X_test) #By now the model should have been trained, so we are going to make predictions 
+```python
+from sklearn.metrics import confusion_matrix, classification_report
 
-   cm = confusion_matrix(y_test, y_pred)
-   print("Confusion Matrix:")
-   print(cm)
+y_pred = model.predict(X_test)
+cm = confusion_matrix(y_test, y_pred)
+cr = classification_report(y_test, y_pred)
 
-   cr = classification_report(y_test, y_pred)
-   print("Classification Report:")
-   print(cr)
+print("Confusion Matrix:")
+print(cm)
 
-   ```
+print("Classification Report:")
+print(cr)
+```
 
+---
 
-      ### Confusion Matrix
+## Model Evaluation
 
-      ![Confusion Matrix](20_Supervised_Learning/credit-risk-classification/Images/confusion_matrix.png)
-         Where:
-         - **4948** True Negatives (healthy loans correctly identified)
-         - **42** False Positives (risky loans predicted as healthy)
-         - **226** False Negatives (healthy loans predicted as risky)
-         - **284** True Positives (risky loans correctly identified)
-         The model was conservative in predicting risky loans, leading to a higher number of false negatives (226), which can be risky in real-world lending decisions.
+### Confusion Matrix
 
-      ### Classification Report
+```
+[[18558   207]
+ [   37   582]]
+```
 
-      ![Classification Report](20_Supervised_Learning/credit-risk-classification/Images/classification_report.png)
-
-      These metrics help explain:
-
-      - The model had strong **precision** for both classes, especially class 1.0 (85%), meaning when it predicted a risky loan, it was usually correct.
-      - However, the **recall** for risky loans was only **56%**, meaning it missed nearly half of the actual risky loans.
+- **18,558** True Negatives (correctly predicted healthy loans)  
+- **207** False Positives (predicted risky loan but was healthy)  
+- **37** False Negatives (predicted healthy loan but was risky)  
+- **582** True Positives (correctly predicted risky loans)  
 
 
-## Summary
+   The model rarely missed risky loans (only 37 false negatives), which is crucial in financial decision-making.
 
-- **Strong overall accuracy** (94%) and high performance on healthy loans.
-- **Lower recall on risky loans** (56%) suggests under-identification of default risk.
-- This could result in financial risk if deployed in production without further tuning.
+---
 
-### Model Recommendation:
-The choice to use this model depends on the business objective:  
-- If minimizing false negatives (missing high-risk loans) is the priority, this model is recommended due to its high recall for high-risk loans (94%). This ensures that most high-risk loans are caught, even at the cost of some false positives.  
-- If minimizing false positives (misclassifying healthy loans as high-risk) is more critical, further model tuning may be needed to improve the precision for high-risk loans.
-- Given the goal of identifying high-risk loans, this model is suitable because its high recall ensures that most high-risk loans are flagged.
+### Classification Report
 
-### Future Uses
+```
+              precision    recall  f1-score   support
 
-To improve the model’s sensitivity to risky loans and reduce false negatives:
-- **Balance the dataset** using techniques like SMOTE or undersampling.
-- **Try ensemble methods** like Random Forest or XGBoost for better class boundary separation.
-- **Tune the decision threshold** to prioritize recall if business goals require higher risk detection.
-- **Refine features** to better differentiate borrower profiles.
+           0       1.00      0.99      1.00     18765
+           1       0.84      0.94      0.89       619
+
+    accuracy                           0.99     19384
+   macro avg       0.92      0.97      0.94     19384
+weighted avg       0.99      0.99      0.99     19384
+```
+
+- **Precision (1.0)**: The model made very few false predictions overall.
+- **Recall (94%) for risky loans**: High sensitivity to identifying default-prone applicants.
+- **F1-score (0.89)**: Balanced performance between precision and recall for high-risk loans.
+- **Accuracy (99%)**: Strong classification across nearly 20,000 samples.
+
+---
+
+## Key Takeaways
+
+- The logistic regression model demonstrated **exceptional accuracy** (99%).
+- It **correctly identified most risky loans** with high recall and very few false negatives (only 37).
+- The model’s performance makes it a viable option for **early-stage loan screening** and risk assessment.
+
+---
+
+## Recommendations for Future Improvements
+
+- **Threshold Tuning**: Adjust decision boundary to further optimize recall or precision based on business needs.
+- **Model Comparison**: Try ensemble classifiers (Random Forest, XGBoost) for potential performance gains.
+- **Cross-Validation**: Validate model stability across different subsets of the data.
+- **Feature Importance Analysis**: Gain interpretability into what features influence predictions most.
+
+---
